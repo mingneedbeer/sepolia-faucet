@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 interface FaucetInfo {
   balance: string;
@@ -15,6 +18,7 @@ export default function Home() {
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string; txHash?: string } | null>(null);
   const [info, setInfo] = useState<FaucetInfo | null>(null);
   const [copied, setCopied] = useState(false);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     fetch("/api/faucet/info")
@@ -28,12 +32,23 @@ export default function Home() {
     setLoading(true);
     setStatus(null);
 
+    let recaptchaToken: string | undefined;
+    if (RECAPTCHA_SITE_KEY) {
+      recaptchaToken = (await recaptchaRef.current?.executeAsync()) ?? undefined;
+      if (!recaptchaToken) {
+        setStatus({ type: "error", message: "Please complete the reCAPTCHA" });
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const res = await fetch("/api/faucet/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address }),
+        body: JSON.stringify({ address, recaptchaToken }),
       });
+      recaptchaRef.current?.reset();
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus({ type: "success", message: "Successfully sent!", txHash: data.hash });
@@ -121,6 +136,13 @@ export default function Home() {
                     required
                   />
                 </div>
+                {RECAPTCHA_SITE_KEY && (
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={RECAPTCHA_SITE_KEY}
+                    size="invisible"
+                  />
+                )}
                 <button
                   type="submit"
                   disabled={loading || !address}

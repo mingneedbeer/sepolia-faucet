@@ -58,11 +58,13 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Environment Variables
 
 | Variable | Default | Description |
-|---|---|---|
+|---|---|---|---|
 | `FAUCET_PRIVATE_KEY` | — | Private key of the faucet wallet (with Sepolia ETH) |
 | `FAUCET_AMOUNT` | `0.01` | ETH amount sent per claim |
 | `RPC_URL` | `https://ethereum-sepolia.publicnode.com` | Sepolia RPC endpoint |
 | `DAILY_CAP` | `0.02` | Global daily dispense limit (ETH) |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | — | reCAPTCHA v2 site key (get at https://www.google.com/recaptcha/admin) |
+| `RECAPTCHA_SECRET_KEY` | — | reCAPTCHA v2 secret key |
 
 ## Deploy to Vercel
 
