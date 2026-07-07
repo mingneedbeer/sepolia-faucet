@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAddress } from "viem";
+import { isAddress, parseEther } from "viem";
 import { sendSepolia } from "@/lib/faucet";
-import { checkRateLimit, setRateLimit } from "@/lib/rate-limit";
+import { checkAddressRateLimit, setAddressRateLimit, checkDailyCap, logDailyDispense } from "@/lib/rate-limit";
+
+const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.01";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,11 +13,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid wallet address" }, { status: 400 });
     }
 
-    const { allowed, remainingMs } = checkRateLimit(address);
+    const { allowed, remainingMs } = checkAddressRateLimit(address);
     if (!allowed) {
       const hours = Math.ceil(remainingMs / 3600000);
       return NextResponse.json(
         { error: `Please wait ${hours}h before your next claim` },
+        { status: 429 }
+      );
+    }
+
+    const amountEth = parseFloat(FAUCET_AMOUNT);
+    const cap = checkDailyCap(amountEth);
+    if (!cap.allowed) {
+      return NextResponse.json(
+        { error: `Daily faucet cap reached (${cap.used}/${cap.cap} ETH). Try again tomorrow.` },
         { status: 429 }
       );
     }
@@ -25,7 +36,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
-    setRateLimit(address);
+    setAddressRateLimit(address);
+    logDailyDispense();
 
     return NextResponse.json({
       success: true,
