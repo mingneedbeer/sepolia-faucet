@@ -30,7 +30,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       hash: result.hash,
-      message: `Successfully sent! Tx: ${result.hash?.slice(0, 10)}...`,
     });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

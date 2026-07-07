@@ -12,7 +12,7 @@ interface FaucetInfo {
 export default function Home() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [status, setStatus] = useState<{ type: "success" | "error"; message: string; txHash?: string } | null>(null);
   const [info, setInfo] = useState<FaucetInfo | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -36,7 +36,7 @@ export default function Home() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setStatus({ type: "success", message: data.message });
+        setStatus({ type: "success", message: "Successfully sent!", txHash: data.hash });
         setAddress("");
         const fresh = await fetch("/api/faucet/info").then((r) => r.json());
         setInfo(fresh);
@@ -138,7 +138,17 @@ export default function Home() {
                       : "bg-red-900/40 text-red-300 border border-red-800"
                   }`}
                 >
-                  {status.message}
+                  <p>{status.message}</p>
+                  {status.txHash && (
+                    <a
+                      href={`https://sepolia.etherscan.io/tx/${status.txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-1.5 text-[var(--accent)] hover:underline"
+                    >
+                      View on Etherscan &rarr;
+                    </a>
+                  )}
                 </div>
               )}
             </div>
