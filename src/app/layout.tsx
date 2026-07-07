@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sepolia Faucet",
+  title: "Yet Another Sepolia Faucet",
   description: "Get free Sepolia ETH for testing and development",
 };
 

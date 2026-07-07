@@ -72,7 +72,7 @@ export default function Home() {
           <div className="w-8 h-8 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white font-bold text-sm">
             S
           </div>
-          <h1 className="text-lg font-semibold">Sepolia Faucet</h1>
+          <h1 className="text-lg font-semibold">Yet Another Sepolia Faucet</h1>
         </div>
       </header>
 
@@ -209,7 +209,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-[var(--border)] px-6 py-4 text-center text-sm text-[var(--muted)]">
-        Sepolia Faucet &middot; Use responsibly
+        Yet Another Sepolia Faucet &middot; Use responsibly
       </footer>
     </div>
   );
