@@ -45,7 +45,7 @@ Edit `.env.local` and set your faucet wallet's private key:
 FAUCET_PRIVATE_KEY=0x...
 FAUCET_AMOUNT=0.01
 RPC_URL=https://ethereum-sepolia.publicnode.com
-DAILY_CAP=0.5
+DAILY_CAP=0.02
 ```
 
 ```bash
