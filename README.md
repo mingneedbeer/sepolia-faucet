@@ -62,7 +62,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `FAUCET_PRIVATE_KEY` | — | Private key of the faucet wallet (with Sepolia ETH) |
 | `FAUCET_AMOUNT` | `0.01` | ETH amount sent per claim |
 | `RPC_URL` | `https://ethereum-sepolia.publicnode.com` | Sepolia RPC endpoint |
-| `DAILY_CAP` | `0.5` | Global daily dispense limit (ETH) |
+| `DAILY_CAP` | `0.02` | Global daily dispense limit (ETH) |
 
 ## Deploy to Vercel
 

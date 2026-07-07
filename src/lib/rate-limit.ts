@@ -2,7 +2,7 @@ const requestMap = new Map<string, number>();
 const dailyLedger: number[] = [];
 
 const ADDRESS_COOLDOWN_MS = 24 * 60 * 60 * 1000;
-const DAILY_CAP_ETH = parseFloat(process.env.DAILY_CAP || "0.5");
+const DAILY_CAP_ETH = parseFloat(process.env.DAILY_CAP || "0.02");
 
 export function checkAddressRateLimit(address: string): {
   allowed: boolean;
