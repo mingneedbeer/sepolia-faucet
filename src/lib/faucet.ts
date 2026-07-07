@@ -3,7 +3,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
 
 const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.01";
-const RPC_URL = process.env.RPC_URL || "https://rpc.sepolia.org";
+const RPC_URL = process.env.RPC_URL || "https://ethereum-sepolia.publicnode.com";
 
 function getFaucetAccount() {
   const pk = process.env.FAUCET_PRIVATE_KEY;

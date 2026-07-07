@@ -43,8 +43,11 @@ export default function Home() {
       } else {
         setStatus({ type: "error", message: data.error || "Request failed" });
       }
-    } catch {
-      setStatus({ type: "error", message: "Network error. Please try again." });
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: err instanceof Error ? err.message : "Network error. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
