@@ -1,21 +1,4 @@
 @import "tailwindcss";
-
-@theme {
-  --color-bg: #0f0f1a;
-  --color-card: #1a1a2e;
-  --color-accent: #6366f1;
-  --color-accent-hover: #4f46e5;
-  --color-text: #e2e8f0;
-  --color-muted: #94a3b8;
-  --color-border: #2d2d4a;
-}
-
-body {
-  background: var(--color-bg);
-  color: var(--color-text);
-  min-height: 100vh;
-}
-
-input::placeholder {
-  color: #64748b;
+@plugin "daisyui" {
+  themes: emerald --default, dark --prefersdark;
 }
