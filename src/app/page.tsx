@@ -232,6 +232,15 @@ export default function Home() {
 
       <footer className="border-t border-[var(--border)] px-6 py-4 text-center text-sm text-[var(--muted)]">
         Yet Another Sepolia Faucet &middot; Use responsibly
+        &middot;
+        <a
+          href="https://github.com/mingneedbeer/sepolia-faucet/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-[var(--accent)] transition-colors"
+        >
+          Feedback
+        </a>
       </footer>
     </div>
   );
