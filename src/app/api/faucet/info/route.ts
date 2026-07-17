@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFaucetBalance, getFaucetAddress } from "@/lib/faucet";
+import { getDailyCapInfo } from "@/lib/rate-limit";
 
 export async function GET() {
   try {
@@ -7,13 +8,16 @@ export async function GET() {
       getFaucetBalance(),
       getFaucetAddress(),
     ]);
+    const cap = getDailyCapInfo();
     return NextResponse.json({
       balance,
       address,
       network: "Ethereum Sepolia",
       chainId: 11155111,
+      dailyUsed: cap.used,
+      dailyCap: cap.cap,
     });
-  } catch {
+  } catch (err) {
     return NextResponse.json({ error: "Failed to fetch faucet info" }, { status: 500 });
   }
 }
