@@ -1,11 +1,15 @@
-import { useState, useEffect, type FormEvent } from "react";
-import {
-  GoogleReCaptchaProvider,
-  GoogleReCaptcha,
-  useGoogleReCaptcha,
-} from "react-google-recaptcha-v3";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 
 const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY || "";
+
+declare global {
+  interface Window {
+    grecaptcha: {
+      render: (container: HTMLElement, options: { sitekey: string; callback: (token: string) => void; "expired-callback": () => void }) => number;
+      reset: (widgetId: number) => void;
+    };
+  }
+}
 
 interface FaucetInfo {
   balance: string;
@@ -14,6 +18,49 @@ interface FaucetInfo {
   chainId: number;
   dailyUsed: number;
   dailyCap: number;
+}
+
+function ReCaptchaWidget({ onVerify }: { onVerify: (token: string | null) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY || !containerRef.current) return;
+
+    const existingScript = document.querySelector(
+      `script[src="https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}"]`
+    );
+
+    function renderWidget() {
+      if (!containerRef.current || widgetIdRef.current !== null) return;
+      widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+        sitekey: RECAPTCHA_SITE_KEY,
+        callback: (token: string) => onVerify(token),
+        "expired-callback": () => onVerify(null),
+      });
+    }
+
+    if (existingScript && window.grecaptcha) {
+      renderWidget();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      const check = setInterval(() => {
+        if (window.grecaptcha) {
+          clearInterval(check);
+          renderWidget();
+        }
+      }, 100);
+    };
+    document.head.appendChild(script);
+  }, []);
+
+  return <div ref={containerRef} className="mt-2" />;
 }
 
 function ClaimFormInner() {
@@ -27,7 +74,6 @@ function ClaimFormInner() {
   const [info, setInfo] = useState<FaucetInfo | null>(null);
   const [copied, setCopied] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const { executeRecaptcha } = useGoogleReCaptcha();
 
   useEffect(() => {
     fetch("/api/faucet/info")
@@ -41,30 +87,20 @@ function ClaimFormInner() {
     setLoading(true);
     setStatus(null);
 
-    let token = recaptchaToken;
-    if (RECAPTCHA_SITE_KEY) {
-      if (executeRecaptcha) {
-        try {
-          token = await executeRecaptcha("claim");
-        } catch {
-          token = null;
-        }
-      }
-      if (!token) {
-        setStatus({
-          type: "error",
-          message: "Please complete the reCAPTCHA",
-        });
-        setLoading(false);
-        return;
-      }
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      setStatus({
+        type: "error",
+        message: "Please complete the reCAPTCHA",
+      });
+      setLoading(false);
+      return;
     }
 
     try {
       const res = await fetch("/api/faucet/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, recaptchaToken: token }),
+        body: JSON.stringify({ address, recaptchaToken }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -170,10 +206,7 @@ function ClaimFormInner() {
                   />
                 </fieldset>
                 {RECAPTCHA_SITE_KEY && (
-                  <GoogleReCaptcha
-                    onVerify={(token) => setRecaptchaToken(token)}
-                    action="claim"
-                  />
+                  <ReCaptchaWidget onVerify={(token) => setRecaptchaToken(token)} />
                 )}
                 <button
                   type="submit"
@@ -293,15 +326,5 @@ function ClaimFormInner() {
 }
 
 export default function ClaimForm() {
-  if (RECAPTCHA_SITE_KEY) {
-    return (
-      <GoogleReCaptchaProvider
-        reCaptchaKey={RECAPTCHA_SITE_KEY}
-        scriptProps={{ async: true, defer: true, appendTo: "head" }}
-      >
-        <ClaimFormInner />
-      </GoogleReCaptchaProvider>
-    );
-  }
   return <ClaimFormInner />;
 }

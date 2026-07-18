@@ -3,8 +3,8 @@ import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
 import { log } from "@/lib/logger";
 
-const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.01";
-const RPC_URL = process.env.RPC_URL || "https://ethereum-sepolia.publicnode.com";
+const FAUCET_AMOUNT = import.meta.env.FAUCET_AMOUNT || "0.01";
+const RPC_URL = import.meta.env.RPC_URL || "https://ethereum-sepolia.publicnode.com";
 
 let cached: {
   account: ReturnType<typeof privateKeyToAccount>;
@@ -15,7 +15,7 @@ let cached: {
 function getFaucet() {
   if (cached) return cached;
 
-  const pk = process.env.FAUCET_PRIVATE_KEY;
+  const pk = import.meta.env.FAUCET_PRIVATE_KEY;
   if (!pk) throw new Error("FAUCET_PRIVATE_KEY not set");
 
   const normalized = pk.startsWith("0x") ? pk : `0x${pk}`;

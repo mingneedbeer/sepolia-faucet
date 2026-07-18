@@ -5,8 +5,8 @@ import { checkAddressCooldown, recordClaim, revertClaim, getDailyCapInfo } from 
 import { verifyRecaptcha } from "@/lib/recaptcha";
 import { log } from "@/lib/logger";
 
-const MAX_BODY_BYTES = 1024;
-const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.01";
+const MAX_BODY_BYTES = 4096;
+const FAUCET_AMOUNT = import.meta.env.FAUCET_AMOUNT || "0.01";
 
 export const POST: APIRoute = async ({ request }) => {
   try {

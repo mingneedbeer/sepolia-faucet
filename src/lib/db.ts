@@ -5,8 +5,8 @@ let client: ReturnType<typeof createClient> | null = null;
 export function getDb() {
   if (client) return client;
 
-  const url = process.env.TURSO_DATABASE_URL;
-  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const url = import.meta.env.TURSO_DATABASE_URL;
+  const authToken = import.meta.env.TURSO_AUTH_TOKEN;
 
   if (!url) {
     throw new Error("TURSO_DATABASE_URL not set");
@@ -66,8 +66,8 @@ export async function getDailyCapInfo(): Promise<{
   cap: number;
 }> {
   const db = getDb();
-  const capEth = parseFloat(process.env.DAILY_CAP || "0.02");
-  const faucetAmount = parseFloat(process.env.FAUCET_AMOUNT || "0.01");
+  const capEth = parseFloat(import.meta.env.DAILY_CAP || "0.02");
+  const faucetAmount = parseFloat(import.meta.env.FAUCET_AMOUNT || "0.01");
   const windowStart = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const result = await db.execute({
