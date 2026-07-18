@@ -1,18 +1,22 @@
-"use client";
+import { useState, useEffect, type FormEvent } from "react";
+import {
+  GoogleReCaptchaProvider,
+  GoogleReCaptcha,
+  useGoogleReCaptcha,
+} from "react-google-recaptcha-v3";
 
-import { useState, useEffect, useRef, FormEvent } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
-
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
+const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 interface FaucetInfo {
   balance: string;
   address: string;
   network: string;
   chainId: number;
+  dailyUsed: number;
+  dailyCap: number;
 }
 
-export default function Home() {
+function ClaimFormInner() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{
@@ -22,7 +26,8 @@ export default function Home() {
   } | null>(null);
   const [info, setInfo] = useState<FaucetInfo | null>(null);
   const [copied, setCopied] = useState(false);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   useEffect(() => {
     fetch("/api/faucet/info")
@@ -36,11 +41,16 @@ export default function Home() {
     setLoading(true);
     setStatus(null);
 
-    let recaptchaToken: string | undefined;
+    let token = recaptchaToken;
     if (RECAPTCHA_SITE_KEY) {
-      recaptchaToken =
-        (await recaptchaRef.current?.executeAsync()) ?? undefined;
-      if (!recaptchaToken) {
+      if (executeRecaptcha) {
+        try {
+          token = await executeRecaptcha("claim");
+        } catch {
+          token = null;
+        }
+      }
+      if (!token) {
         setStatus({
           type: "error",
           message: "Please complete the reCAPTCHA",
@@ -54,9 +64,8 @@ export default function Home() {
       const res = await fetch("/api/faucet/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, recaptchaToken }),
+        body: JSON.stringify({ address, recaptchaToken: token }),
       });
-      recaptchaRef.current?.reset();
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus({
@@ -161,10 +170,9 @@ export default function Home() {
                   />
                 </fieldset>
                 {RECAPTCHA_SITE_KEY && (
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={RECAPTCHA_SITE_KEY}
-                    size="invisible"
+                  <GoogleReCaptcha
+                    onVerify={(token) => setRecaptchaToken(token)}
+                    action="claim"
                   />
                 )}
                 <button
@@ -282,4 +290,18 @@ export default function Home() {
       </footer>
     </div>
   );
+}
+
+export default function ClaimForm() {
+  if (RECAPTCHA_SITE_KEY) {
+    return (
+      <GoogleReCaptchaProvider
+        reCaptchaKey={RECAPTCHA_SITE_KEY}
+        scriptProps={{ async: true, defer: true, appendTo: "head" }}
+      >
+        <ClaimFormInner />
+      </GoogleReCaptchaProvider>
+    );
+  }
+  return <ClaimFormInner />;
 }

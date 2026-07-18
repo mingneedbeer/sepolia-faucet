@@ -1,33 +1,37 @@
 {
   "name": "sepoliafaucet",
-  "version": "1.0.0",
-  "description": "Sepolia ETH Faucet",
-  "private": true,
+  "type": "module",
+  "version": "2.0.0",
+  "description": "Sepolia ETH Faucet — Astro + Bun + Turso",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "astro check",
+    "test": "vitest",
+    "test:e2e": "playwright test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
+    "@astrojs/react": "^6.0.1",
+    "@astrojs/vercel": "^11.0.3",
+    "@libsql/client": "^0.14.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.1",
     "daisyui": "^5.6.14",
-    "next": "^16.2.10",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-google-recaptcha": "^3.1.0",
+    "react-google-recaptcha-v3": "^1.11.0",
     "viem": "^2.54.6"
   },
   "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@playwright/test": "^1.53.0",
     "@tailwindcss/postcss": "^4.3.2",
     "@types/node": "^26.1.0",
     "@types/react": "^19.2.17",
-    "@types/react-google-recaptcha": "^2.1.9",
-    "autoprefixer": "^10.5.2",
     "postcss": "^8.5.16",
     "tailwindcss": "^4.3.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.3"
   }
 }
